@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RecipeFinder — Favourites</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/darkmode.css" />
+  <script src="../js/theme.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="nav-logo"><span class="logo-icon">🍳</span><span class="logo-text">RecipeFinder</span></a>
+    <div class="nav-actions">
+      <a href="favourites.html" class="nav-link" style="color:var(--accent);"><i class="ti ti-heart"></i> Favourites</a>
+      <button class="theme-toggle" id="themeToggle"><i class="ti ti-moon"></i></button>
+    </div>
+  </nav>
+  <div class="page-wrap">
+    <h1 class="page-title">Saved Recipes</h1>
+    <p class="page-sub" id="favSub">Your favourite recipes saved here.</p>
+    <div class="results-grid" id="favGrid"></div>
+    <div class="empty-state hidden" id="emptyFavs">
+      <div class="empty-icon">🤍</div>
+      <h3>No saved recipes yet</h3>
+      <p>Tap the heart on any recipe to save it here</p>
+      <br/>
+      <a href="../index.html" style="display:inline-flex;padding:10px 22px;background:var(--accent);color:white;border-radius:20px;text-decoration:none;font-weight:600;font-size:13.5px;">Browse recipes</a>
+    </div>
+  </div>
+  <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal"><button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button><div class="modal-body" id="modalBody"></div></div>
+  </div>
+  <script src="../js/recipes.js"></script>
+  <script>
+    let favourites = JSON.parse(localStorage.getItem('recipe_favs') || '[]');
+    function renderFavs() {
+      const favRecipes = RECIPES.filter(r => favourites.includes(r.id));
+      const grid = document.getElementById('favGrid');
+      const empty = document.getElementById('emptyFavs');
+      document.getElementById('favSub').textContent = favRecipes.length + ' saved recipe' + (favRecipes.length !== 1 ? 's' : '');
+      if (!favRecipes.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+      empty.classList.add('hidden');
+      grid.innerHTML = favRecipes.map((r,i) => `<div class="recipe-card" onclick="openModal(${r.id})" style="animation-delay:${i*0.05}s"><div class="card-img-wrap"><img src="${r.img}" alt="${r.name}" loading="lazy" /><span class="card-badge">${r.cuisine}</span><button class="card-fav active" onclick="event.stopPropagation();removeFav(${r.id})">❤️</button></div><div class="card-body"><div class="card-cuisine">${r.cuisine}</div><div class="card-title">${r.name}</div><div class="card-meta"><span><i class="ti ti-clock"></i> ${r.time} min</span><span><i class="ti ti-flame"></i> ${r.calories} cal</span></div><div class="card-rating">⭐ ${r.rating}</div></div></div>`).join('');
+    }
+    function removeFav(id) { favourites = favourites.filter(f => f !== id); localStorage.setItem('recipe_favs', JSON.stringify(favourites)); renderFavs(); }
+    function openModal(id) {
+      const r = RECIPES.find(x => x.id === id); if (!r) return;
+      document.getElementById('modalBody').innerHTML = `<img class="modal-hero-img" src="${r.img}" alt="${r.name}" /><div class="modal-content"><div class="modal-cuisine">${r.cuisine}</div><h2 class="modal-title">${r.name}</h2><div class="modal-stats"><div class="modal-stat"><i class="ti ti-clock"></i><span><strong>${r.time} min</strong></span></div><div class="modal-stat"><i class="ti ti-flame"></i><span><strong>${r.calories} cal</strong></span></div></div><div class="modal-section"><h3>Ingredients</h3><div class="ingredients-grid">${r.ingredients.map(i=>`<div class="ingredient-item">${i}</div>`).join('')}</div></div><div class="modal-section"><h3>Instructions</h3><ol class="steps-list">${r.steps.map((s,i)=>`<li class="step-item"><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('')}</ol></div><div class="modal-actions"><button class="btn-secondary" onclick="removeFav(${r.id});closeModal({target:document.getElementById('modalOverlay')})"><i class="ti ti-heart-broken"></i> Remove</button><button class="btn-secondary" onclick="window.print()"><i class="ti ti-printer"></i> Print</button></div></div>`;
+      document.getElementById('modalOverlay').classList.remove('hidden'); document.body.style.overflow='hidden';
+    }
+    function closeModal(e) { if(!e||e.target===document.getElementById('modalOverlay')||(e.currentTarget&&e.currentTarget.classList.contains('modal-close'))){document.getElementById('modalOverlay').classList.add('hidden');document.body.style.overflow='';} }
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal({target:document.getElementById('modalOverlay')}); });
+    document.addEventListener('DOMContentLoaded', renderFavs);
+  </script>
+</body>
+</html>

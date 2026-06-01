@@ -1,0 +1,22 @@
+/* ===== DARK MODE ===== */
+[data-theme="dark"] {
+  --bg: #111110;
+  --surface: #1c1b19;
+  --surface2: #252422;
+  --border: rgba(255,255,255,0.08);
+  --text: #f5f4f0;
+  --text-muted: #a8a29e;
+  --text-hint: #6b6560;
+  --accent-light: #2a1a12;
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+}
+[data-theme="dark"] .navbar {
+  background: rgba(17,17,16,0.92);
+}
+[data-theme="dark"] .hero-bg {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,93,38,0.12) 0%, transparent 70%);
+}
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.1s ease;
+}
